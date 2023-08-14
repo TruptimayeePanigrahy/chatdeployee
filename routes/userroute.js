@@ -6,7 +6,9 @@ const userRoute=express.Router()
 require("dotenv").config()
 const {client}=require("../config/redis")
 const {blackmodel}=require("../models/blaclkistmodel")
-const nodemailer=require("nodemailer")
+const nodemailer = require("nodemailer")
+
+
 userRoute.post("/register",async(req,res)=>{
     try {
         const {name,email,password}=req.body
@@ -127,6 +129,7 @@ userRoute.get("/verify",async(req,res)=>{
         console.log(error)
     }
 })
+
 
 
 
