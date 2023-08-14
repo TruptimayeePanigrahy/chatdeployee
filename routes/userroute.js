@@ -7,6 +7,8 @@ require("dotenv").config()
 const {client}=require("../config/redis")
 const {blackmodel}=require("../models/blaclkistmodel")
 const nodemailer = require("nodemailer")
+const path=require("path")
+
 
 
 userRoute.post("/register",async(req,res)=>{
@@ -54,9 +56,9 @@ userRoute.post("/login",async(req,res)=>{
 
         client.set('token', token, 'EX', 21600);
         client.set('refreshtoken', refreshtoken, 'EX', 86400);
-        res.status(200).send({"msg":"Login successfull!!","token":token,user})
-    //    const url=`http://localhost:4500/?name=${user.name}`
-    //    res.redirect(url)
+        
+         res.redirect(`/user/chat/?id=${user.name}`) 
+   
     } catch (error) {
         console.log(error)
         res.status(400).send({"msg":"Login failed!!"})
@@ -130,7 +132,15 @@ userRoute.get("/verify",async(req,res)=>{
     }
 })
 
-
-
+userRoute.get("/chat",async(req,res)=>{
+    let {id}=req.query
+    console.log(id)
+    try {
+        res.sendFile(path.join(__dirname,"./view/chat.html"))       
+    } catch (error) {
+        console.log(error)
+        res.send(error)
+    }
+})
 
 module.exports={userRoute}
