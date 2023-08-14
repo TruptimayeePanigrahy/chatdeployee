@@ -97,7 +97,7 @@ let verificationmail=async(name,email,userid)=>{
             from: 'panigrahydeepakkumar27@gmail.com',
             to: email,
             subject: 'For verification mail',
-            html:`<p>Hi ${name} <br> please click here to <a href="http://localhost:3300/user/verify?id=${userid}">verify</a>  your mail. </p>`
+            html:`<p>Hi ${name} <br> please click here to <a href="https://chatuserdeployee.onrender.com/user/verify?id=${userid}">verify</a>  your mail. </p>`
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
