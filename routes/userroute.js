@@ -136,7 +136,7 @@ userRoute.get("/chat",async(req,res)=>{
     let {id}=req.query
     console.log(id)
     try {
-        res.sendFile(path.join(__dirname,"./view/chat.html"))       
+        res.sendFile(path.join(__dirname,"../view/chat.html"))       
     } catch (error) {
         console.log(error)
         res.send(error)
