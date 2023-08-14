@@ -3,62 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>chatapp</title>
-    <!-- <link rel="stylesheet" href="./public/style.css"> -->
-    <link rel="stylesheet" href="./chat.css">
-   
-       
+    <title>Chat_App</title>
+    <style>
+        *{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body{
+    display: flex;
+    justify-content:space-around ;
+    
+    gap: 20px;
+    min-height: 100vh;
+    background:url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlDdvd_KBbXKdBqM0C4RHL_ZMwzD4Jqyx0MURPiXUS&s");
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat
+}
 
- 
+
+section.chat_app{
+    width: 700px;
+    max-width: 90%;
+    height: 90vh;
+   background: linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(158,253,45,1) 100%);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    margin-top: 50px;
+    border-radius: 20px;
+     border: 3px solid teal;
+}
+.brand{
+    padding: 20px;
+    background-color: #FCE4EC;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 20px;
+  
+}
+
+.brand h1{
+    text-transform: uppercase;
+    font-size: 20px;
+    color:teal;
+    margin-left: 10px;
+}
+
+.msgarea{
+height: 500px;
+padding: 15px;
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+padding-top: 40px;
+background-image:url("/view/image.png");
+background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#input{
+    width: 100%;
+    border:none;
+    padding: 20px;
+    font-size: 16px;
+    outline: none;
+}
+
+.msg{
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 40px;
+    max-width: 300px;
+    position: relative;
+}
+
+.incoming{
+    background-color: blueviolet;
+    color: white;
+}
+
+.outgoing{
+    background-color: blueviolet;
+    color: white;
+    margin-left: auto;
+
+}
+.msg h4{
+    position: absolute;
+    top:-20px;
+    left:0;
+    color: #333;
+    font-size: 14px;
+
+
+}
+#addeduser li{
+    color: green;
+    list-style-type: disc;
+}
+
+
+#logout{
+   color: white;
+   background-color:rgb(11, 185, 185);
+   padding: 10px;
+   border-radius: 5px;
+   font-weight:bold;
+   cursor: pointer;
+}
+    </style>
 </head>
-<body>
-    
-   <section class="chat_app">
-    
-    <div class="brand">
-        <!-- <img src="" alt="" srcset=""> -->
-        <h1>chat application</h1>
-        <button id="logout">Leave</button>
-    </div>
-    <div class="msgarea">
-        <!-- <div class="incoming msg">
-            <h4>trupti</h4>
-            <p>hii trupti</p>
+<body>    
+    <section class="chat_app">
+        <div class="brand">
+            <h1>Users: <span id="addeduser">0</span></h1>
+            <button id="logout">Leave Chat</button>
         </div>
-        <div class="outgoing msg">
-            <h4>trupti</h4>
-            <p>hii trupti</p>
-        </div> -->
-    </div>
-<div>
-    <textarea name="" id="textarea" cols="30" rows="2" placeholder="Write a text message"></textarea>
-</div>
+        <div class="msgarea">
+            <!-- Your message area content here -->
+        </div>
+        <div>
+            <input type="text" id="input" placeholder="Enter your message here..">
+        </div>
+    </section>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let logoutbtn=document.getElementById("logout")
+        logoutbtn.addEventListener("click",()=>{
+            window.location.href="http://127.0.0.1:5501/Chat_App/frontend/index.html"
+        })
 
-   </section>
-   <!-- for socket server -->
-   <script src="/socket.io/socket.io.js"></script>
-    <script src="./chat.js"></script>
+        const socket = io();
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get('id');
+        let msgarea = document.querySelector(".msgarea");
+        let msg = document.getElementById("input");
+
+        msg.addEventListener('keyup', (e) => {
+            if (e.key == "Enter") {
+                sendmsg(e.target.value);
+            }
+        });
+
+        function sendmsg(message) {
+            let msg = {
+                user: name,
+                message: message.trim()
+            };
+            // Append message
+            appendmsg(msg, "outgoing");
+            msg.value = "";
+            // Send message to server
+            socket.emit("message", msg);
+        }
+
+        function appendmsg(msg, type) {
+            let maindiv = document.createElement("div");
+            let classname = type;
+            maindiv.classList.add(classname, "msg");
+            let markup = `
+            <h4>${msg.user}</h4>
+            <p>${msg.message}</p>
+            `;
+            maindiv.innerHTML = markup;
+            msgarea.appendChild(maindiv);
+        }
+
+        // Receive message
+        socket.on("message", (msg) => {
+            appendmsg(msg, "incoming");
+        });
+
+        // Update user list
+        let connectedUsers = [];
+
+        socket.on("users", (users) => {
+            connectedUsers = users;
+            updateUsersList();
+        });
+
+        const updateUsersList = () => {
+            const userListElement = document.getElementById("addeduser");
+            userListElement.innerHTML = connectedUsers.length;
+        };
+
+        // Emit user join event when the page loads
+        socket.emit("user_join", name);
+    </script>
 </body>
 </html>
-<script>
-    let leave=document.getElementById("logout")
-
-    let name=localStorage.getItem("name")
-    let token=localStorage.getItem("token")
-
-    leave.addEventListener("click",(e)=>{
-        e.preventDefault()
-        fetch("https://chatuserdeployee.onrender.com/user/logout")
-        .then((res)=>{
-            return res.json()
-        })
-.then((data)=>{
-    console.log(data)
-    window.location.href="http://127.0.0.1:5500/frontend/index.html"
-    localStorage.clear()
-})
-.catch((err)=>{
-    console.log(err)
-})
-    })
-</script>
